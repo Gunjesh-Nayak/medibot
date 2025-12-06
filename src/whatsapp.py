@@ -3,7 +3,6 @@ import requests
 import json
 import re
 import logging
-from flask import current_app
 
 def get_text_message_input(recipient, text):
     return json.dumps({
@@ -15,15 +14,15 @@ def get_text_message_input(recipient, text):
     })
 
 def send_message(data):
-    # Retrieve tokens from Environment Variables or Flask Config
     token = os.getenv("ACCESS_TOKEN")
     phone_id = os.getenv("PHONE_NUMBER_ID")
+    version = os.getenv("VERSION", "v17.0")
     
     headers = {
         "Content-type": "application/json",
         "Authorization": f"Bearer {token}",
     }
-    url = f"https://graph.facebook.com/v17.0/{phone_id}/messages"
+    url = f"https://graph.facebook.com/{version}/{phone_id}/messages"
     
     try:
         response = requests.post(url, data=data, headers=headers, timeout=10)
@@ -34,21 +33,29 @@ def send_message(data):
         return None
 
 def process_text(text):
-    # Clean up RAG references like 【source】 and fix bolding
     text = re.sub(r"\【.*?\】", "", text).strip()
     text = re.sub(r"\*\*(.*?)\*\*", r"*\1*", text)
     return text
 
 def parse_incoming_message(body):
     """
-    Extracts the user's number and message from the webhook data.
-    Returns None if the data is invalid.
+    Extracts the user's number and message.
+    CRITICAL FIX: Returns None if the webhook is a 'status' update.
     """
     try:
+        # 1. Check if this is a Status Update (sent/delivered/read)
+        # If 'statuses' exists, it's NOT a message. Ignore it.
         entry = body["entry"][0]["changes"][0]["value"]
+        if "statuses" in entry:
+            return None
+
+        # 2. Check if it is a Message
+        if "messages" not in entry:
+            return None
+
         message = entry["messages"][0]
         
-        # Only handle text messages
+        # 3. Only handle text messages
         if message.get("type") != "text":
             return None
             
@@ -58,4 +65,5 @@ def parse_incoming_message(body):
             "body": message["text"]["body"]
         }
     except (KeyError, IndexError):
+        # If the structure is weird, ignore it rather than crashing
         return None
