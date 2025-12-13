@@ -1,0 +1,24 @@
+langchain==0.3.26
+flask==3.1.1
+sentence-transformers==4.1.0
+# File Type 	       Recommended Python Library(ies)	     Key Functionality
+# Excel (.xlsx, .xls)	openpyxl, pandas	                    Read, write, and modify spreadsheet data, create charts/formulas, or perform data analysis.
+# Word (.docx)	        python-docx	                            Create and modify Word documents, work with paragraphs, runs, tables, and headers.
+# CSV (.csv)	        csv (built-in), pandas	                Read and write tabular data in CSV format, with excellent support for data analysis.
+# JSON (.json)	        json (built-in)	                        Encode and decode JSON data, useful for data interchange and storage.
+# Images            	Pillow (PIL Fork), OpenCV	            Open, manipulate, and save various image file formats, or perform computer vision tasks.
+# Text Files (.txt)	    io, built-in open()	                    Basic file reading and writing operations.
+# Archives (.zip,.tar)|	zipfile, tarfile (built-in)	            Read from and write to compressed archive files.
+
+pypdf==5.6.1
+python-dotenv==1.1.0
+pinecone-client==2.2.2
+langchain-pinecone==0.2.8
+langchain-openai==0.3.26 #0.3.24
+# pip install pinecone==7.3.0
+# pip install --upgrade langchain-pinecone
+langchain-community==0.3.26
+
+-e .
+
+
