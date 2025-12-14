@@ -3,8 +3,9 @@ from flask import current_app, jsonify
 import json
 import requests
 
-# from app.services.openai_service import generate_response
+
 import re
+from start.logicAi import generate_response # <--- Make sure this file has the 3-argument version!
 
 
 def log_http_response(response):
@@ -25,9 +26,9 @@ def get_text_message_input(recipient, text):
     )
 
 
-def generate_response( response):
-    # Return text in uppercase
-    return response.upper()
+# def generate_response( response):
+#     # Return text in uppercase
+#     return response
 
 
 def send_message(data):
@@ -40,7 +41,7 @@ def send_message(data):
 
     try:
         response = requests.post(
-            url, data=data, headers=headers, timeout=10
+            url, data=data, headers=headers, timeout=5
         )  # 10 seconds timeout as an example
         response.raise_for_status()  # Raises an HTTPError if the HTTP request returned an unsuccessful status code
     except requests.Timeout:
@@ -83,11 +84,14 @@ def process_whatsapp_message(body):
     message_body = message["text"]["body"]
 
     # TODO: implement custom function here
-    response = generate_response(message_body)
+    # response = generate_response(message_body)
 
     # OpenAI Integration
-    # response = generate_response(message_body, wa_id, name)
-    # response = process_text_for_whatsapp(response)
+    response = generate_response(message_body, wa_id, name)
+    # response = generate_response(message_body)
+    response = process_text_for_whatsapp(response)
+
+    
 
     data = get_text_message_input(current_app.config["RECIPIENT_WAID"], response)
     send_message(data)
